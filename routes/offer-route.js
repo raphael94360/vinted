@@ -7,13 +7,13 @@ const User = require("../models/User");
 const Offer = require("../models/Offer");
 
 router.post("/offer/publish", isAuthenticated, async (req, res) => {
-
   // res.json(req.user);
   // console.log(req.fields);
   // console.log(req.files.picture.path);
 
   try {
-    const { title, description, price, condition, city, brand, size, color } = req.fields;
+    const { title, description, price, condition, city, brand, size, color } =
+      req.fields;
 
     // Créer une annonce
     const newOffer = new Offer({
@@ -33,28 +33,28 @@ router.post("/offer/publish", isAuthenticated, async (req, res) => {
 
     // Envoi de l'image à Cloudinary
 
-      const result = await cloudinary.uploader.upload(req.files.picture.path, { folder: `/vinted/offers/${newOffer._id}`});
-      console.log(result);
-      newOffer.product_image = result;
-      await newOffer.save();
-      return res.json({
-        _id: newOffer._id,
-        product_name: newOffer.product_name,
-        product_description: newOffer.product_description,
-        product_price: newOffer.product_price,
-        product_details: newOffer.product_details,
-        owner: {
-          account: newOffer.owner.account,
-          _id: newOffer.owner._id,
-        },
-        product_image: newOffer.product_image,
-      });
-
+    const result = await cloudinary.uploader.upload(req.files.picture.path, {
+      folder: `/vinted/offers/${newOffer._id}`,
+    });
+    console.log(result);
+    newOffer.product_image = result;
+    await newOffer.save();
+    return res.json({
+      _id: newOffer._id,
+      product_name: newOffer.product_name,
+      product_description: newOffer.product_description,
+      product_price: newOffer.product_price,
+      product_details: newOffer.product_details,
+      owner: {
+        account: newOffer.owner.account,
+        _id: newOffer.owner._id,
+      },
+      product_image: newOffer.product_image,
+    });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
-
-})
+});
 
 router.get("/offers", async (req, res) => {
   try {
@@ -102,7 +102,7 @@ router.get("/offers", async (req, res) => {
     if (req.query.page) {
       page = req.query.page;
     }
-    const skip = (page -1) * limit;
+    const skip = (page - 1) * limit;
 
     // 10 résultats par page : 1 skip 0, 2 skip 10, 3 skip 20
     //  3 resultats par page : 1 skip 0, 2 skip 3, 3 skip 6
@@ -116,7 +116,6 @@ router.get("/offers", async (req, res) => {
 
     console.log(results.length);
     return res.json({ count: count, offers: results });
-    
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
@@ -128,7 +127,7 @@ router.get("/offer/:id", async (req, res) => {
     const offer = await Offer.findById(req.params.id)
       .populate("owner", "account")
       .select("product_image.secure_url product_name product_price");
-    return res.json(offer);  
+    return res.json(offer);
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
